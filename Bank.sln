@@ -20,9 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceTests", "ServiceTests\ServiceTests.csproj", "{EF470DC8-93F2-47FF-B9DE-14FC1B74B556}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E2AC03C5-3674-4B74-9229-3A7402B1BDC1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{50552ED4-4C03-485D-A04D-FEB607C75CD7}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\work\DB_dex\console_1.sql = ..\..\work\DB_dex\console_1.sql
+		Docs\console.sql = Docs\console.sql
 	EndProjectSection
 EndProject
 Global
