@@ -8,7 +8,7 @@ namespace Services
 {
     public class EmployeeService
     {
-        DbBank _dbContext;
+        public DbBank _dbContext;
 
         public EmployeeService()
         {
@@ -57,6 +57,7 @@ namespace Services
             })
             .ToList();
         }
+
         public void AddEmployee(Employee employee)
         {
             var employeeDb = new EmployeeDb()
@@ -79,27 +80,28 @@ namespace Services
             _dbContext.SaveChanges();
         }
         
-        public void UpdateEmployee(EmployeeDb employee)
+        public void UpdateEmployee(Employee employee)
         {
-            var employeeDb = _dbContext.clients.FirstOrDefault(c => c.Id == employee.Id);
+            var employeeDb = _dbContext.employees.FirstOrDefault(c => c.Id == employee.Id);
 
             if (employeeDb == null)
             {
                 throw new ExistsException("Этого работника не существует");
             }
 
-            _dbContext.clients.Update(employeeDb);
+            _dbContext.employees.Update(employeeDb);
             _dbContext.SaveChanges();
         }
-        public void DeleteEmployee(EmployeeDb employee)
+
+        public void DeleteEmployee(Employee employee)
         {
-            var employeeDb = _dbContext.clients.FirstOrDefault(c => c.Id == employee.Id);
-
+            var employeeDb = _dbContext.employees.FirstOrDefault(c => c.Id == employee.Id);
             if (employeeDb == null)
-                throw new ExistsException("Этого работника не существует");
-            else
-                _dbContext.employees.Remove(employee);
-
+            {
+                throw new ExistsException("В базе нет такого клиента");
+            }
+            _dbContext.employees.Remove(employeeDb);
+            _dbContext.SaveChanges();
         }
     }
 }

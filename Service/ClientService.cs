@@ -108,8 +108,9 @@ namespace Services
                 }
             };
             if (accountDb.Currency.Name == null)
+            {
                 throw new ExistsException("Этот аккаунт не привязан ни к одному клиенту");
-
+            }
             _dbContext.accounts.Add(accountDb);
             _dbContext.SaveChanges();
         }
@@ -131,13 +132,15 @@ namespace Services
         {
             var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
             if (clientDb == null)
+            {
                 throw new ExistsException("В базе нет такого клиента");
-
+            }
             var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
 
             if (accountDb == null)
+            {
                 throw new ExistsException("У клиента нет такого счета");
-
+            }
             _dbContext.accounts.Update(accountDb);
             _dbContext.SaveChanges();
         }
@@ -159,13 +162,15 @@ namespace Services
         {
             var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
             if (clientDb == null)
+            {
                 throw new ExistsException("В базе нет такого клиента");
-
+            }
             var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
 
             if (accountDb == null)
+            {
                 throw new ExistsException("У клиента нет такого счета");
-
+            }
             _dbContext.accounts.Remove(accountDb);
             _dbContext.SaveChanges();
         }
