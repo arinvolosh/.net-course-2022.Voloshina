@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ModelsDb\ModelsDb.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\PracticEF\PracticEF.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace Services
     public class ClientService
     {
 
-        private DbBank _dbContext;
+        public DbBank _dbContext;
 
         public ClientService()
         {

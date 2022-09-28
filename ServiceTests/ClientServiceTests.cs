@@ -13,13 +13,15 @@ namespace ServiceTests
         [Fact]
         public void AddClientLimit18YearsExceptionTest()
         {
-            ClientService clientService = new ClientService(new ClientStorage());
-            ClientDb ivan = new ClientDb
+            // Arrange
+            var clientService = new ClientService();
+            var ivan = new Client
             {
                 Name = "Ivan",
                 BirtDate = new DateTime(2006, 01, 01),
                 PasportNum = 324763
             };
+            // Act&Assert
             try
             {
                 clientService.AddClient(ivan);
@@ -37,13 +39,14 @@ namespace ServiceTests
         [Fact]
         public void AddClientNoPasportDataExceptionTest()
         {
-            ClientService clientService = new ClientService(new ClientStorage());
-            ClientDb ivan = new ClientDb
+            // Arrange
+            var clientService = new ClientService();
+            var ivan = new Client
             {
                 Name = "Ivan",
-                BirtDate = new DateTime(2006, 01, 01),
-                PasportNum = 324763
+                BirtDate = new DateTime(2000, 01, 01)
             };
+            // Act&Assert
             try
             {
                 clientService.AddClient(ivan);
@@ -59,43 +62,104 @@ namespace ServiceTests
             }
         }
         [Fact]
-        public void AddNewAccount_NoExistsClient_And_AccountAlreadyExistsExceptionTest()
+        public void AddClientExistingClientTest()
         {
             // Arrange
-            var clientStorage = new ClientStorage();
-            var clientService = new ClientService(clientStorage);
-
-            ClientDb ivan = new ClientDb
+            var clientService = new ClientService();
+            var testDataGenerator = new TestDataGenerator();
+            var oldClient = testDataGenerator.GetFakeDataClient().Generate();
+            var newClient = new Client()
             {
-                Name = "Ivan",
-                BirtDate = new DateTime(2006, 01, 01),
-                PasportNum = 324763
+                Name = oldClient.Name,
+                PasportNum = oldClient.PasportNum,
+                BirtDate = oldClient.BirtDate
             };
-            ClientDb ivanI = new ClientDb
-            {
-                Name = "Ivan",
-                BirtDate = new DateTime(2006, 01, 01),
-                PasportNum = 324763
-            };
-            AccountDb newAccount = new AccountDb
-            {
-                Currency = new CurrencyDb
-                {
-                    Code = 5,
-                    Name = "RUB",
-                },
-                Amount = 0
-            };
-
-            // Act/Assert
+            // Act&Assert
             try
             {
-                clientService.AddClient(ivan);
-                clientService.AddAccount(ivan, newAccount);
+                clientService.AddClient(oldClient);
+                clientService.AddClient(newClient);
 
-                Assert.Throws<ExistsException>(() => clientService.AddAccount(ivanI, newAccount));
-                Assert.Throws<ExistsException>(() => clientService.AddAccount(ivan, newAccount));
-                Assert.Contains(newAccount, clientStorage[ivan]);
+            }
+            catch (ExistsException e)
+            {
+                Assert.Equal("Этот клиент уже существует", e.Message);
+                Assert.Equal(typeof(ExistsException), e.GetType());
+            }
+            catch (Exception e)
+            {
+                Assert.True(false);
+            }
+        }
+        [Fact]
+        public void GetClientsFilterTest()
+        {
+            // Arrange
+            var clientService = new ClientService();
+            var testDataGenerator = new TestDataGenerator();
+            var clientFilter = new ClientFilter();
+            var client = new Client();
+
+            for (int i = 0; i < 10; i++)
+            {
+                client = testDataGenerator.GetFakeDataClient().Generate();
+                clientService.AddClient(client);
+            };
+
+            // Act&Assert
+            clientFilter.Name = client.Name;
+            clientFilter.PasportNum = client.PasportNum;
+
+            Assert.NotNull(clientService.GetClients(clientFilter));
+
+        }
+
+        [Fact]
+        public void DeleteClientKeyNotFoundExceptionTest()
+        {
+            // Arrange
+            var clientService = new ClientService();
+            var testDataGenerator = new TestDataGenerator();
+            var existsClient = testDataGenerator.GetFakeDataClient().Generate();
+            var noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            // Act&Assert
+            try
+            {
+                clientService.AddClient(existsClient);
+                clientService.DeleteClient(existsClient);
+                Assert.Null(clientService._dbContext.clients.FirstOrDefault(c => c.Id == existsClient.Id));
+            }
+            catch (ExistsException e)
+            {
+                Assert.Throws<ExistsException>(() => clientService.DeleteClient(noExistsClient));
+                Assert.Equal(typeof(ExistsException), e.GetType());
+            }
+            catch (Exception e)
+            {
+                Assert.Null(clientService._dbContext.clients.FirstOrDefault(c => c.Id == existsClient.Id));
+                Assert.True(false);
+            }
+        }
+        [Fact]
+        public void UpdateClient_KeyNotFoundException_ClientUpdated_Test()
+        {
+            // Arrange
+            var clientService = new ClientService();
+            var testDataGenerator = new TestDataGenerator();
+            var existsClient = testDataGenerator.GetFakeDataClient().Generate();
+            var noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            // Act&Assert
+            try
+            {
+                clientService.AddClient(existsClient);
+                clientService.UpdateClient(existsClient);
+            }
+            catch (ExistsException e)
+            {
+                Assert.Throws<ExistsException>(() => clientService.UpdateClient(noExistsClient));
+                Assert.Equal(typeof(ExistsException), e.GetType());
             }
             catch (Exception e)
             {
@@ -103,6 +167,5 @@ namespace ServiceTests
             }
 
         }
-
     }
 }
