@@ -17,10 +17,7 @@ namespace ModelsDb
         [Column(name: "code")]
         public int Code { get; set; }
 
-        [Column(name: "account")]
-        public AccountDb Account { get; set; }
-
-        [Column(name: "account_id")]
-        public Guid AccountId { get; set; }
+        [Column(name: "accounts_id")]
+        public List<AccountDb> Accounts { get; set; }
     }
 }

@@ -11,53 +11,55 @@ namespace Services.Storage
 {
     public class ClientStorage : IClientStorage
     {
-        private DbBank data = new DbBank();
+        public Dictionary<Client, List<Account>> Data { get; }
 
-        public DbBank Data => data;
-
-
-        public void Add(ClientDb client)
+        public void Add(Client client)
         {
-
-            Data.clients.Add(client);
-            Data.accounts.Add(
-              new AccountDb
-              {
-                  Currency = new CurrencyDb { Name = "Euro",Code = 1},
-                  Amount = 0,
-                  Client = client
-              });
-            Data.SaveChanges();
+            Data.Add(
+                client,
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new Currency
+                        {
+                            Code = 1,
+                            Name = "Euro",
+                        },
+                        Amount = 0
+                    }
+                });
         }
 
-        public void Remove(ClientDb client)
+        public void AddAccount(Client client, Account account)
         {
-            Data.clients.Remove(client);
-            Data.SaveChanges();
+            Data[client].Add(account);
         }
 
-        public void Update(ClientDb client)
+        public void Remove(Client item)
         {
-            Data.clients.Update(client);
-            Data.SaveChanges();
+            throw new NotImplementedException();
         }
 
-        public void AddAccount(AccountDb account)
+        public void RemoveAccount(Client client, Account account)
         {
-            Data.accounts.Add(account);
-            Data.SaveChanges();
+            throw new NotImplementedException();
         }
 
-        public void RemoveAccount(AccountDb account)
+        public void Update(Client item)
         {
-            Data.accounts.Remove(account);
-            Data.SaveChanges();
+            var oldClient = Data.Keys.First(p => p.PasportNum == item.PasportNum);
+            oldClient.Name = item.Name;
+            oldClient.PasportNum = item.PasportNum;
+            oldClient.BirtDate = item.BirtDate;
         }
 
-        public void UpdateAccount(AccountDb account)
+        public void UpdateAccount(Client client, Account account)
         {
-            Data.accounts.Update(account);
-            Data.SaveChanges();
+            var oldAccount = Data[client].FirstOrDefault(p => p.Currency.Name == account.Currency.Name);
+            oldAccount.Currency.Name = account.Currency.Name;
+            oldAccount.Currency.Code = account.Currency.Code;
+            oldAccount.Amount = account.Amount;
         }
     }
 }

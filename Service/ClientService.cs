@@ -9,12 +9,13 @@ namespace Services
     public class ClientService
     {
 
-        DbBank _dbContext;
+        private DbBank _dbContext;
 
         public ClientService()
         {
             _dbContext = new DbBank();
         }
+
         public ClientDb GetClient(Guid clientId)
         {
             var client = _dbContext.clients.FirstOrDefault(c => c.Id == clientId);
@@ -24,38 +25,10 @@ namespace Services
                 throw new ExistsException("Этого клиента не сущетсвует");
             }
 
-            return _dbContext.clients.FirstOrDefault(c => c.Id == clientId);
+            return client;
         }
-
-        public void AddClient(ClientDb client)
-        {
-            if (client.PasportNum == 0)
-            {
-                throw new NoPasportData("У клиента нет паспортных данных");
-            }
-
-            if (DateTime.Now.Year - client.BirtDate.Year < 18)
-            {
-                throw new Under18Exception("Клиент меньше 18 лет");
-            }
-            var account = new AccountDb
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id
-            };
-            var currency = new CurrencyDb()
-            {
-                Id = Guid.NewGuid(),
-                Name = "RUB",
-                Code = 2,
-                AccountId = account.Id
-            };
-            _dbContext.clients.Add(client);
-            _dbContext.accounts.Add(account);
-            _dbContext.currencies.Add(currency);
-        }
-
-        public List<ClientDb> GetClients(ClientFilter clientFilter)
+        
+        public List<Client> GetClients(ClientFilter clientFilter)
         {
             var selection = _dbContext.clients.Select(p => p);
 
@@ -75,64 +48,126 @@ namespace Services
                 selection = selection.
                     Where(p => p.BirtDate == clientFilter.EndDate);
 
-            return selection.ToList();
+            return selection.Select(clientDb => new Client()
+            {
+                Id = clientDb.Id,
+                Name = clientDb.Name,
+                PasportNum = clientDb.PasportNum,
+                BirtDate = clientDb.BirtDate,
+                Bonus = clientDb.Bonus
+            })
+            .ToList();
         }
 
-        public void AddAccount(AccountDb account)
+        public void AddClient(Client client)
         {
-            if (account.ClientId == null)
+            var clientDb = new ClientDb
+            {
+                Id = client.Id,
+                Name = client.Name,
+                PasportNum = client.PasportNum,
+                BirtDate = client.BirtDate,
+                Bonus = client.Bonus
+            };
+            if (clientDb.PasportNum == 0)
+            {
+                throw new NoPasportData("У клиента нет паспортных данных");
+            }
+
+            if (DateTime.Now.Year - clientDb.BirtDate.Year < 18)
+            {
+                throw new Under18Exception("Клиент меньше 18 лет");
+            }
+            var accountDb = new AccountDb
+            {
+                Id = Guid.NewGuid(),
+                ClientId = clientDb.Id,
+                Currency = new CurrencyDb
+                {
+                    Name = "RUB",
+                    Code = 1,
+                }
+            };
+            
+            _dbContext.clients.Add(clientDb);
+            _dbContext.accounts.Add(accountDb);
+            _dbContext.SaveChanges();
+        }
+
+
+        public void AddAccount(Client client, Account account)
+        {
+            var accountDb = new AccountDb
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                Currency = new CurrencyDb
+                {
+                    Name = account.Currency.Name,
+                    Code = account.Currency.Code,
+                }
+            };
+            if (accountDb.Currency.Name == null)
                 throw new ExistsException("Этот аккаунт не привязан ни к одному клиенту");
 
-            _dbContext.accounts.Add(account);
+            _dbContext.accounts.Add(accountDb);
+            _dbContext.SaveChanges();
         }
 
-        public void UpdateClient(ClientDb client)
+        public void UpdateClient(Client client)
         {
-            var oldClient = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
 
-            if (!_dbContext.clients.Contains(oldClient))
+            if (!_dbContext.clients.Contains(clientDb))
             {
                 throw new ExistsException("Этого клиента не существует");
             }
 
-            oldClient.Id = client.Id;
-            oldClient.Name = client.Name;
-            oldClient.PasportNum = client.PasportNum;
-            oldClient.BirtDate = client.BirtDate;
-            oldClient.Accounts = client.Accounts;
-
+            _dbContext.clients.Update(clientDb);
+            _dbContext.SaveChanges();
         }
 
-        public void UpdateAccount(AccountDb account)
+        public void UpdateAccount(Client client, Account account)
         {
-            var oldAccount = _dbContext.accounts.FirstOrDefault(c => c.Id == account.Id);
-            var accountClient = _dbContext.clients.FirstOrDefault(c => c.Id == oldAccount.Id);
+            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            if (clientDb == null)
+                throw new ExistsException("В базе нет такого клиента");
 
-            if (!accountClient.Accounts.Select(x => x.Id).Contains(oldAccount.Id))
+            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
+
+            if (accountDb == null)
+                throw new ExistsException("У клиента нет такого счета");
+
+            _dbContext.accounts.Update(accountDb);
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteClient(Client client)
+        {
+            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+
+            if (!_dbContext.clients.Contains(clientDb))
             {
-                throw new ExistsException("Данного аккаунта не существует");
+                throw new ExistsException("Этого клиента не существует");
             }
 
-            oldAccount.Id = account.Id;  
-            oldAccount.Currency = account.Currency;
-            oldAccount.Amount = account.Amount;
-
+            _dbContext.clients.Remove(clientDb);
+            _dbContext.SaveChanges();
         }
-        public void DeleteClient(Guid clientId)
+
+        public void DeleteAccount(Client client, Account account)
         {
-            var client = _dbContext.clients.FirstOrDefault(c => c.Id == clientId);
+            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            if (clientDb == null)
+                throw new ExistsException("В базе нет такого клиента");
 
-            if (client == null)
-                throw new ExistsException("Этого клиента не сущетсвует");
-            else
-                _dbContext.clients.Remove(client);
+            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
 
-        }
-        public void DeleteAccount(Guid accountId)
-        {
-            var account = _dbContext.accounts.FirstOrDefault(c => c.Id == accountId);
+            if (accountDb == null)
+                throw new ExistsException("У клиента нет такого счета");
 
-            _dbContext.accounts.Remove(account);
+            _dbContext.accounts.Remove(accountDb);
+            _dbContext.SaveChanges();
         }
     }
 }

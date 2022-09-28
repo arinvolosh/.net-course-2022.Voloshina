@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ModelsDb.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -21,6 +21,19 @@ namespace ModelsDb.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_clients", x => x.id_client);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "currencies",
+                columns: table => new
+                {
+                    currence_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    code = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_currencies", x => x.currence_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -44,63 +57,50 @@ namespace ModelsDb.Migrations
                 {
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     amount = table.Column<int>(type: "integer", nullable: false),
-                    ClientDbId = table.Column<Guid>(type: "uuid", nullable: true)
+                    CurrencyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_accounts", x => x.account_id);
                     table.ForeignKey(
-                        name: "FK_accounts_clients_ClientDbId",
-                        column: x => x.ClientDbId,
+                        name: "FK_accounts_clients_client_id",
+                        column: x => x.client_id,
                         principalTable: "clients",
-                        principalColumn: "id_client");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "currences",
-                columns: table => new
-                {
-                    currence_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    code = table.Column<int>(type: "integer", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_currences", x => x.currence_id);
+                        principalColumn: "id_client",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_currences_accounts_account_id",
-                        column: x => x.account_id,
-                        principalTable: "accounts",
-                        principalColumn: "account_id",
+                        name: "FK_accounts_currencies_CurrencyId",
+                        column: x => x.CurrencyId,
+                        principalTable: "currencies",
+                        principalColumn: "currence_id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_accounts_ClientDbId",
+                name: "IX_accounts_client_id",
                 table: "accounts",
-                column: "ClientDbId");
+                column: "client_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_currences_account_id",
-                table: "currences",
-                column: "account_id",
-                unique: true);
+                name: "IX_accounts_CurrencyId",
+                table: "accounts",
+                column: "CurrencyId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "currences");
+                name: "accounts");
 
             migrationBuilder.DropTable(
                 name: "employees");
 
             migrationBuilder.DropTable(
-                name: "accounts");
+                name: "clients");
 
             migrationBuilder.DropTable(
-                name: "clients");
+                name: "currencies");
         }
     }
 }

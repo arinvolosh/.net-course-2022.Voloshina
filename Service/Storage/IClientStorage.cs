@@ -3,11 +3,11 @@ using Models;
 
 namespace Services.Storage
 {
-    public interface IClientStorage : IStorage<ClientDb>
+    public interface IClientStorage : IStorage<Client>
     {
-        public void AddAccount(AccountDb account);
-        public void RemoveAccount(AccountDb account);
-        public void UpdateAccount(AccountDb account);
-        public DbBank Data { get; }
+        public void AddAccount(Client client, Account account);
+        public void RemoveAccount(Client client, Account account);
+        public void UpdateAccount(Client client, Account account);
+        public Dictionary<Client, List<Account>> Data { get; }
     }
 }

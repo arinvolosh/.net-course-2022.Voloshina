@@ -71,7 +71,7 @@ namespace ServiceTests
                 BirtDate = new DateTime(2006, 01, 01),
                 PasportNum = 324763
             };
-            ClientDb ivan = new ClientDb
+            ClientDb ivanI = new ClientDb
             {
                 Name = "Ivan",
                 BirtDate = new DateTime(2006, 01, 01),

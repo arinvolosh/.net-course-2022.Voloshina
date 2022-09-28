@@ -33,12 +33,18 @@ namespace ModelsDb.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("amount");
 
-                    b.Property<Guid?>("ClientDbId")
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<Guid>("CurrencyId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientDbId");
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CurrencyId");
 
                     b.ToTable("accounts");
                 });
@@ -75,10 +81,6 @@ namespace ModelsDb.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("currence_id");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
                     b.Property<int>("Code")
                         .HasColumnType("integer")
                         .HasColumnName("code");
@@ -90,10 +92,7 @@ namespace ModelsDb.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId")
-                        .IsUnique();
-
-                    b.ToTable("currences");
+                    b.ToTable("currencies");
                 });
 
             modelBuilder.Entity("ModelsDb.EmployeeDb", b =>
@@ -127,29 +126,29 @@ namespace ModelsDb.Migrations
 
             modelBuilder.Entity("ModelsDb.AccountDb", b =>
                 {
-                    b.HasOne("ModelsDb.ClientDb", null)
+                    b.HasOne("ModelsDb.ClientDb", "Client")
                         .WithMany("Accounts")
-                        .HasForeignKey("ClientDbId");
-                });
-
-            modelBuilder.Entity("ModelsDb.CurrencyDb", b =>
-                {
-                    b.HasOne("ModelsDb.AccountDb", "Account")
-                        .WithOne("Currency")
-                        .HasForeignKey("ModelsDb.CurrencyDb", "AccountId")
+                        .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("ModelsDb.AccountDb", b =>
-                {
-                    b.Navigation("Currency")
+                    b.HasOne("ModelsDb.CurrencyDb", "Currency")
+                        .WithMany("Accounts")
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Currency");
                 });
 
             modelBuilder.Entity("ModelsDb.ClientDb", b =>
+                {
+                    b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("ModelsDb.CurrencyDb", b =>
                 {
                     b.Navigation("Accounts");
                 });

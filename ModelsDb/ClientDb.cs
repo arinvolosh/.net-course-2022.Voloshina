@@ -19,6 +19,9 @@ namespace ModelsDb
         [Column(name: "pasport_num")]
         public int PasportNum { get; set; }
 
+        [Column(name: "bonus")]
+        public int Bonus { get; set; }
+
         [Column(name: "accounts_id")]
         public List<AccountDb> Accounts { get; set; }
     }
