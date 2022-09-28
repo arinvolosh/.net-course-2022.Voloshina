@@ -118,7 +118,7 @@ namespace Services
         {
             var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
 
-            if (!_dbContext.clients.Contains(clientDb))
+            if (clientDb == null)
             {
                 throw new ExistsException("Этого клиента не существует");
             }
@@ -146,7 +146,7 @@ namespace Services
         {
             var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
 
-            if (!_dbContext.clients.Contains(clientDb))
+            if (clientDb == null)
             {
                 throw new ExistsException("Этого клиента не существует");
             }

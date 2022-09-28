@@ -24,20 +24,7 @@ namespace Services
             }
             return _dbContext.employees.FirstOrDefault(c => c.Id == employeeId); ;
         }
-        public void AddEmployee(EmployeeDb employee)
-        {
-            if (employee.PasportNum == 0)
-            {
-                throw new NoPasportData("У работника нет паспортных данных");
-            }
-
-            if (DateTime.Now.Year - employee.BirtDate.Year < 18)
-            {
-                throw new Under18Exception("Работник меньше 18 лет");
-            }
-            _dbContext.employees.Add(employee);
-        }
-        public List<EmployeeDb> GetEmployees(EmployeeFilters employeeFilter)
+        public List<Employee> GetEmployees(EmployeeFilters employeeFilter)
         {
             var selection = _dbContext.employees.Select(p => p);
 
@@ -61,30 +48,55 @@ namespace Services
                 selection = selection.
                    Where(p => p.PasportNum == employeeFilter.PasportNum);
 
-            return selection.ToList();
-        }
-        public void UpdateEmployee(EmployeeDb employee)
-        {
-            var oldEmployee = _dbContext.employees.FirstOrDefault(c => c.Id == employee.Id);
-
-            if (!_dbContext.employees.Contains(oldEmployee))
+            return selection.Select(employeeDb => new Employee()
             {
-                throw new ExistsException("Этого сотрудника не существует");
+                Id = employeeDb.Id,
+                Name = employeeDb.Name,
+                PasportNum = employeeDb.PasportNum,
+                BirtDate = employeeDb.BirtDate
+            })
+            .ToList();
+        }
+        public void AddEmployee(Employee employee)
+        {
+            var employeeDb = new EmployeeDb()
+            {
+                Id = employee.Id,
+                Name = employee.Name,
+                PasportNum = employee.PasportNum,
+                BirtDate = employee.BirtDate
+            };
+            if (employeeDb.PasportNum == 0)
+            {
+                throw new NoPasportData("У работника нет паспортных данных");
             }
 
-            oldEmployee.Id = employee.Id;
-            oldEmployee.Name = employee.Name;
-            oldEmployee.PasportNum = employee.PasportNum;
-            oldEmployee.BirtDate = employee.BirtDate;
-            oldEmployee.Salary = employee.Salary;
-
+            if (DateTime.Now.Year - employeeDb.BirtDate.Year < 18)
+            {
+                throw new Under18Exception("Работник меньше 18 лет");
+            }
+            _dbContext.employees.Add(employeeDb);
+            _dbContext.SaveChanges();
         }
-        public void DeleteEmployee(Guid employeeId)
+        
+        public void UpdateEmployee(EmployeeDb employee)
         {
-            var employee = _dbContext.employees.FirstOrDefault(c => c.Id == employeeId);
+            var employeeDb = _dbContext.clients.FirstOrDefault(c => c.Id == employee.Id);
 
-            if (employee == null)
-                throw new ExistsException("Этого клиента не сущетсвует");
+            if (employeeDb == null)
+            {
+                throw new ExistsException("Этого работника не существует");
+            }
+
+            _dbContext.clients.Update(employeeDb);
+            _dbContext.SaveChanges();
+        }
+        public void DeleteEmployee(EmployeeDb employee)
+        {
+            var employeeDb = _dbContext.clients.FirstOrDefault(c => c.Id == employee.Id);
+
+            if (employeeDb == null)
+                throw new ExistsException("Этого работника не существует");
             else
                 _dbContext.employees.Remove(employee);
 
