@@ -142,7 +142,7 @@ namespace ServiceTests
             }
         }
         [Fact]
-        public void UpdateClient_KeyNotFoundException_ClientUpdated_Test()
+        public void UpdateClientKeyNotFoundExceptionTest()
         {
             // Arrange
             var clientService = new ClientService();
