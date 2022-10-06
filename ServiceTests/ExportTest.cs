@@ -30,19 +30,19 @@ namespace ServiceTests
             var listClients = new List<Client>();
             var clientIvan = new Client();
             
-            clients.Add(clientIvan);
+            listClients.Add(clientIvan);
 
 
             //Act
             string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
             string fileName = "client.csv";
             ExportService clientExporter = new ExportService(pathToDirectory, fileName);
-            clientExporter.WriteClientToCsv(clients);
+            clientExporter.WriteClientToCsv(listClients);
 
             var clientsRead = clientExporter.ReadClientFromCsv();
             foreach (var client in clientsRead)
             {
-                service.AddClient(client);
+                clientService.AddClient(client);
             }
 
             //Assert
