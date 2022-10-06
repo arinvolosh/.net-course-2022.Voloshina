@@ -1,71 +1,126 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Models;
+﻿using Models;
+using Bogus;
+using Bogus.DataSets;
+using System.Reflection.Emit;
+using System.Dynamic;
+using CurrencyM = Models.Currency;
 
 
 namespace Services
 {
     public class TestDataGenerator
     {
-        
+        public Faker<Client> GetFakeDataClient()
+        {
+            var generator = new Faker<Client>("ru")
+                .StrictMode(true)
+                .RuleFor(u => u.Name, f => f.Name.ToString())
+                .RuleFor(u => u.PasportNum, f => f.Random.Int(100000, 999999))
+                .RuleFor(u => u.BirtDate, f => f.Date.Past(100));
+            return generator;
+        }
+
+        public Faker<Employee> GetFakeDataEmployee()
+        {
+            var generator = new Faker<Employee>("ru")
+                .StrictMode(true)
+                .RuleFor(u => u.Name, f => f.Name.ToString())
+                .RuleFor(u => u.PasportNum, f => f.Random.Int(100000, 999999))
+                .RuleFor(u => u.BirtDate, f => f.Date.Past(100))
+                .RuleFor(u => u.Contract, (f, u) => "PasportNum: " + u.PasportNum +
+                                                    "\nName: " + u.Name +
+                                                    "\nBirtDate: " + u.BirtDate.ToString("D"))
+
+                .RuleFor(u => u.Salary, f => f.Random.Int(1000, 9999));
+            return generator;
+        }
+
+
+
         public List<Client> GetClientsList()
         {
-            DateTime start = new DateTime(1950, 1, 1);
-            Random rand = new Random();
-            int range = (DateTime.Today - start).Days;
-            var clientsList = new List<Client>();
-            for (int i = 0; i < 1000; i++)
-            {
-                clientsList.Add(new Client
-                {
-                    Name = "Name_" + i,
-                    BirtDate = start.AddDays(rand.Next(range)),
-                    PasportNum = rand.Next(100000, 999999),
-                    Phone = i
-                }) ;
-            }
-                return clientsList;
+            var clientList = GetFakeDataClient().Generate(1000);
+            return clientList;
         }
+
         public Dictionary<int, Client> GetClientsDictionary()
         {
-            DateTime start = new DateTime(1950, 1, 1);
-            Random rand = new Random();
-            int range = (DateTime.Today - start).Days;
-            var clientsDictionary = new Dictionary<int, Client>();
+            Dictionary<int, Client> clientDictionary = new Dictionary<int, Client>();
             for (int i = 0; i < 1000; i++)
             {
-                clientsDictionary.Add(
-                i, 
-                new Client
-                {
-                    Name = "Name_" + i,
-                    BirtDate= start.AddDays(rand.Next(range)),
-                    PasportNum = rand.Next(100000, 999999),
-                    Phone = i 
-                });
+                Client client = GetFakeDataClient().Generate();
+                clientDictionary.Add(client.PasportNum, client);
             }
-            return clientsDictionary;
+            return clientDictionary;
         }
+
         public List<Employee> GetEmployeesList()
         {
-            DateTime start = new DateTime(1950, 1, 1);
-            Random rand = new Random();
-            int range = (DateTime.Today - start).Days;
-            var employeesList = new List<Employee>();
-
-            for (int i = 0; i < 1000; i++)
-            {
-                employeesList.Add(new Employee
-                {
-                    Name = "Name_" + i,
-                    BirtDate = start.AddDays(rand.Next(range)),
-                    PasportNum = rand.Next(100000, 999999),
-                    Salary = rand.Next(1000,9999)
-                });
-            }
-            return employeesList;
+            var employeeList = GetFakeDataEmployee().Generate(1000);
+            return employeeList;
         }
 
+        public Dictionary<Client, List<Account>> GetAccounDictionary()
+        {
+            Dictionary<Client, List<Account>> accounDictionary = new Dictionary<Client, List<Account>>();
+
+            accounDictionary.Add(
+                new Client
+                {
+
+                },
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new CurrencyM
+                        {
+                            Name = "Euro",
+                            Code = 1,
+                        },
+                        Amount = 33,
+                    },
+                    new Account
+                    {
+                        Currency = new CurrencyM
+                        {
+                            Name = "RUB",
+                            Code = 2,
+                        },
+                        Amount = 34,
+                    }
+                });
+
+            accounDictionary.Add(
+                new Client
+                {
+                    Name = "Kolya",
+                    PasportNum = 349833,
+                    BirtDate = new DateTime(2000, 01, 01)
+                },
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new CurrencyM
+                        {
+                           Name = "Euro",
+                           Code = 3,
+                        },
+                        Amount = 35
+                    },
+                    new Account
+                    {
+                        Currency = new CurrencyM
+                        {
+                            Name = "RUB",
+                            Code = 4,
+                        },
+                        Amount = 36,
+                    }
+                });
+
+            return accounDictionary;
+        }
     }
 }

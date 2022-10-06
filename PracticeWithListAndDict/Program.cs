@@ -20,10 +20,9 @@ public class Program
                     Name = "Ivan",
                     BirtDate = new DateTime(1990, 01, 01),
                     PasportNum = 324786,
-                    Phone = 77520034
                 });
                 sw.Start();
-                clientList.Find(p => p.Phone == 77520034);
+                clientList.Find(p => p.PasportNum == 324786);
                 sw.Stop();
                 Console.WriteLine($"{i}Поиск клиента по его номеру телефона в list занял: {sw.Elapsed.Milliseconds}");
                 sw.Restart();
@@ -31,7 +30,7 @@ public class Program
             else
             {
                 sw.Start();
-                clientList.Find(p => p.Phone == i);
+                clientList.Find(p => p.PasportNum == i);
                 sw.Stop();
                 Console.WriteLine($"{i}Поиск клиента по его номеру телефона в list занял: {sw.Elapsed.Milliseconds}");
                 sw.Restart();
