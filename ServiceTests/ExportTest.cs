@@ -25,9 +25,9 @@ namespace ServiceTests
         public void ReadClientTest()
         {
             //Arrange
-            var service = new ClientService();
+            var clientService = new ClientService();
 
-            var clients = new List<Client>();
+            var listClients = new List<Client>();
             var clientIvan = new Client();
             
             clients.Add(clientIvan);
