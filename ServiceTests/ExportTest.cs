@@ -14,8 +14,10 @@ namespace ServiceTests
             string fileName = "client.csv";
             ExportService clientExporter = new ExportService(pathToDirectory, fileName);
             var listClients = new TestDataGenerator().GetClientsList();
+            //Act
             clientExporter.WriteClientToCsv(listClients);
             var tests = clientExporter.ReadClientFromCsv(pathToDirectory, fileName);
+            //Assert
             Assert.NotNull(tests);
         }
 
