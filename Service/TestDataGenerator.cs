@@ -15,14 +15,13 @@ namespace Services
             Random rand = new Random();
             int range = (DateTime.Today - start).Days;
             var clientsList = new List<Client>();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 10; i++)
             {
                 clientsList.Add(new Client
                 {
                     Name = "Name_" + i,
                     BirtDate = start.AddDays(rand.Next(range)),
-                    PasportNum = rand.Next(100000, 999999),
-                    Phone = i
+                    PasportNum = rand.Next(100000, 999999)
                 }) ;
             }
                 return clientsList;

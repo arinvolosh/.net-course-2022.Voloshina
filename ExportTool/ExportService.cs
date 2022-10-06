@@ -1,29 +1,31 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using Models;
 using System.Globalization;
+using System.Text;
 
 namespace ExportTool
 {
-    public class ClientExporter
+    public class ExportService
     {
-        private string _pathToDirecory { get; set; }
+        private string _pathToDirectory { get; set; }
+
         private string _csvFileName { get; set; }
 
-        public ClientExporter(string pathToDirectory, string csvFileName)
+        public ExportService(string pathToDirectory, string csvFileName)
         {
-            _pathToDirecory = pathToDirectory;
+            _pathToDirectory = pathToDirectory;
             _csvFileName = csvFileName;
         }
 
-        public void WriteClientToCsv(Client client)
+        public void WriteClientToCsv(List<Client> clients)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(_pathToDirecory);
+            DirectoryInfo dirInfo = new DirectoryInfo(_pathToDirectory);
             if (!dirInfo.Exists)
             {
                 dirInfo.Create();
             }
-
-            string fullPath = GetFullPathToFile(_pathToDirecory, _csvFileName);
+            string fullPath = GetFullPathToFile(_pathToDirectory, _csvFileName);
 
             using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
@@ -31,38 +33,43 @@ namespace ExportTool
                 {
                     using (var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
                     {
-                        writer.WriteField(nameof(Client.Name));
-                        writer.WriteField(nameof(Client.BirtDate));
-                        writer.WriteField(nameof(Client.PasportNum));
-
-                        writer.NextRecord();
-
-                        writer.WriteField(client.Name);
-                        writer.WriteField(client.BirtDate);
-                        writer.WriteField(client.PasportNum);
-
-                        writer.NextRecord();
-
+                        writer.WriteRecords(clients);
                         writer.Flush();
                     }
                 }
             }
         }
 
-        public Client ReadClientFromCsv()
+        public List<Client> ReadClientFromCsv(string pathToDirectory, string fileName)
         {
-            string fullPath = GetFullPathToFile(_pathToDirecory, _csvFileName);
-            using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            var clientList = new List<Client>();
+
+            string fullPath = GetFullPathToFile(_pathToDirectory, _csvFileName);
+
+            using (var fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
-                using (StreamReader streamReader = new StreamReader(fileStream))
+               using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    using (var reader = new CsvReader(streamReader, CultureInfo.CurrentCulture))
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                    { Delimiter = ";" };
+                    using (var reader = new CsvReader(streamReader, config))
                     {
-                        reader.Read();
-                        return reader.GetRecord<Client>();
+                        var clients = reader.EnumerateRecords(new Client());
+                        foreach (var c in clients)
+                        {
+                            clientList.Add(new Client
+                            {
+                                Name = c.Name,
+                                PasportNum = c.PasportNum,
+                                BirtDate = c.BirtDate,
+                                Bonus = c.Bonus
+                            });
+                        }
                     }
                 }
             }
+
+            return clientList;
         }
 
 
