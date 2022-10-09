@@ -9,8 +9,9 @@ namespace ServiceTests
 
     public class ThreadAndTaskTests
     {
-        private ITestOutputHelper _outPut;
         object locker = new object();
+
+        private ITestOutputHelper _outPut;
 
         public ThreadAndTaskTests(ITestOutputHelper outPut)
         {
