@@ -56,7 +56,7 @@ namespace ServiceTests
 
             var threadWriteFromCsv = new Thread(() =>
             {
-                List<Client> listClients = new List<Client>();
+                var listClients = new List<Client>();
                 lock (locker)
                 {
                     foreach (var client in bankContext.clients)
