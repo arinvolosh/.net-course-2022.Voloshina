@@ -19,7 +19,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void Test()
+        public void DepositingMoneyIntoAnAccount()
         {
             var account = new Account { Amount = 0 };
             void AddMoney()
