@@ -52,7 +52,7 @@ namespace ServiceTests
             var clientService = new ClientService(clientStorage);
             string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
             string fileName = "client.csv";
-            ExportService exportService = new ExportService(pathToDirectory, fileName);
+            var exportService = new ExportService(pathToDirectory, fileName);
 
             var threadWriteFromCsv = new Thread(() =>
             {
@@ -71,7 +71,6 @@ namespace ServiceTests
                         });
                         Thread.Sleep(1000);
                     }
-
                     exportService.WriteClientToCsv(listClients);
                 }
                 foreach (var client in listClients)
@@ -92,8 +91,8 @@ namespace ServiceTests
                     foreach (var client in clientsFromCsv)
                     {
                         clientService.AddClient(client);
+                        Thread.Sleep(1000);
                     }
-                    Thread.Sleep(1000);
                     _outPut.WriteLine($"Данные прочитанны");
                 }
             });

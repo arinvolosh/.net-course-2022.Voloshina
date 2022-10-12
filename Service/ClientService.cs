@@ -174,5 +174,26 @@ namespace Services
             _dbContext.accounts.Remove(accountDb);
             _dbContext.SaveChanges();
         }
+        public void UpdateAccount(Guid id, Account account)
+        {
+            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == id);
+            if (clientDb == null)
+            {
+                throw new ExistsException("В базе нет такого клиента");
+            }
+            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
+
+            if (accountDb == null)
+            {
+                throw new ExistsException("У клиента нет такого счета");
+            }
+
+            accountDb.Amount = account.Amount;
+            accountDb.Currency.Name = account.Currency.Name;
+
+            _dbContext.accounts.Update(accountDb);
+            _dbContext.SaveChanges();
+
+        }
     }
 }
