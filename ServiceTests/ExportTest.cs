@@ -1,5 +1,4 @@
-﻿using ExportTool;
-using Xunit;
+﻿using Xunit;
 using Services;
 using Models;
 
@@ -38,7 +37,7 @@ namespace ServiceTests
             string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
             string fileName = "client.csv";
             ExportService clientExporter = new ExportService(pathToDirectory, fileName);
-            clientExporter.WriteClientToCsv(listClients);
+            await clientExporter.WriteClientToCsv(listClients);
             var clientsRead = await clientExporter.ReadClientFromCsv();
             foreach (var client in clientsRead)
             {
