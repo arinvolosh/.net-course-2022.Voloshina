@@ -125,40 +125,12 @@ namespace ServiceTests
             // Act&Assert
             try
             {
-                //clientService.AddClient(existsClient);
-                //clientService.DeleteClient(existsClient);
-                //Assert.Null(clientService._dbContext.clients.FirstOrDefault(c => c.Id == existsClient.Id));
-            }
-            catch (ExistsException e)
-            {
-                //Assert.Throws<ExistsException>(() => clientService.DeleteClient(noExistsClient));
-                Assert.Equal(typeof(ExistsException), e.GetType());
-            }
-            catch (Exception e)
-            {
-                //Assert.Null(clientService._dbContext.clients.FirstOrDefault(c => c.Id == existsClient.Id));
-                Assert.True(false);
-            }
-        }
-        [Fact]
-        public void UpdateClientKeyNotFoundExceptionTest()
-        {
-            // Arrange
-            //var clientService = new ClientService();
-            var testDataGenerator = new TestDataGenerator();
-            var existsClient = testDataGenerator.GetFakeDataClient().Generate();
-            var noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+                clientService.AddClient(ivan);
+                //clientService.AddAccount(ivan, newAccount);
 
-            // Act&Assert
-            try
-            {
-                //clientService.AddClient(existsClient);
-                //clientService.UpdateClient(existsClient);
-            }
-            catch (ExistsException e)
-            {
-                //Assert.Throws<ExistsException>(() => clientService.UpdateClient(noExistsClient));
-                Assert.Equal(typeof(ExistsException), e.GetType());
+                //Assert.Throws<ExistsException>(() => clientService.AddAccount(ivanI, newAccount));
+                //Assert.Throws<ExistsException>(() => clientService.AddAccount(ivan, newAccount));
+                //Assert.Contains(newAccount, clientStorage.Data[ivan]);
             }
             catch (Exception e)
             {
