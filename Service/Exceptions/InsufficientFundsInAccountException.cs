@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Services.Exceptions
 {
-    public class NoPasportData : Exception
+    public class InsufficientFundsInAccountException : Exception
     {
-        public NoPasportData(string? message) : base(message)
+        public InsufficientFundsInAccountException(string? message) : base(message)
         {
         }
     }

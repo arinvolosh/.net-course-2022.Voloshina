@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Services.Exceptions
 {
-    public class NoPasportData : Exception
+    public class AccountExistsException : Exception
     {
-        public NoPasportData(string? message) : base(message)
+        public AccountExistsException(string? message) : base(message)
         {
         }
     }
