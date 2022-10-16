@@ -17,7 +17,7 @@ namespace Services
             _csvFileName = csvFileName;
         }
 
-        public void WriteClientToCsv(List<Client> clients)
+        public async Task WriteClientToCsv(List<Client> clients)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(_pathToDirectory);
             if (!dirInfo.Exists)
@@ -26,11 +26,11 @@ namespace Services
             }
             string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
 
-            using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            await using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
-                using (StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
+                await using(StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
                 {
-                    using (var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
+                    await using(var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
                     {
                         writer.WriteRecords(clients);
                         writer.Flush();
@@ -39,17 +39,15 @@ namespace Services
             }
         }
 
-        public List<Client> ReadClientFromCsv(string pathToDirectory, string fileName)
+        public async Task <List<Client>> ReadClientFromCsv()
         {
-            var clientList = new List<Client>();
-
             string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
 
-            using (var fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            await using(FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
-                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+                using(StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    using (var reader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+                    using(var reader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
                     {
                         var clients = reader.EnumerateRecords(new Client());
                         return clients.ToList();

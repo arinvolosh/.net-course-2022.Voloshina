@@ -8,21 +8,21 @@ namespace ServiceTests
     public class ExportTest
     {
         [Fact]
-        public void WriteClientTest()
+        public async Task WriteClientTest()
         {
             //Arrange
             string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
             string fileName = "client.csv";
-            ExportService clientExporter = new ExportService(pathToDirectory, fileName);
+            var clientExporter = new ExportService(pathToDirectory, fileName);
             var listClients = new TestDataGenerator().GetClientsList();
             //Act
-            clientExporter.WriteClientToCsv(listClients);
-            var tests = clientExporter.ReadClientFromCsv(pathToDirectory, fileName);
+            await clientExporter.WriteClientToCsv(listClients);
+            var tests = await clientExporter.ReadClientFromCsv(pathToDirectory, fileName);
             //Assert
-            Assert.NotNull(tests);
+            await Assert.NotNull(tests);
         }
         [Fact]
-        public void ReadClientTest()
+        public async Task ReadClientTest()
         {
             //Arrange
             var clientService = new ClientService();
@@ -39,14 +39,14 @@ namespace ServiceTests
             ExportService clientExporter = new ExportService(pathToDirectory, fileName);
             clientExporter.WriteClientToCsv(listClients);
 
-            var clientsRead = clientExporter.ReadClientFromCsv();
+            var clientsRead = await clientExporter.ReadClientFromCsv();
             foreach (var client in clientsRead)
             {
-                clientService.AddClient(client);
+                await clientService.AddClient(client);
             }
 
             //Assert
-            Assert.NotEmpty(clientsRead);
+            await Assert.NotEmpty(clientsRead);
         }
 
     }
