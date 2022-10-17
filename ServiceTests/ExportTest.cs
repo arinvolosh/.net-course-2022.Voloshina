@@ -1,5 +1,4 @@
-﻿using ExportTool;
-using Xunit;
+﻿using Xunit;
 using Services;
 using Models;
 
@@ -7,46 +6,46 @@ namespace ServiceTests
 {
     public class ExportTest
     {
-        [Fact]
-        public void WriteClientTest()
+        private ClientService _clientService;
+
+        public ExportTest(ClientService clientService)
         {
-            //Arrange
-            string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
-            string fileName = "client.csv";
-            ExportService clientExporter = new ExportService(pathToDirectory, fileName);
-            var listClients = new TestDataGenerator().GetClientsList();
-            //Act
-            clientExporter.WriteClientToCsv(listClients);
-            var tests = clientExporter.ReadClientFromCsv(pathToDirectory, fileName);
-            //Assert
-            Assert.NotNull(tests);
+            _clientService = clientService;
         }
         [Fact]
-        public void ReadClientTest()
+        public async Task WriteClientTest()
         {
             //Arrange
-            var clientService = new ClientService();
-
+            string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
+            string fileName = "client.csv";
+            var clientExporter = new ExportService(pathToDirectory, fileName);
+            var listClients = new TestDataGenerator().GetClientsList();
+            //Act
+            await clientExporter.WriteClientToCsv(listClients);
+            var tests = await clientExporter.ReadClientFromCsv(pathToDirectory, fileName);
+            //Assert
+            await Assert.NotNull(tests);
+        }
+        [Fact]
+        public async Task ReadClientTest()
+        {
+            //Arrange
             var listClients = new List<Client>();
             var clientIvan = new Client();
-            
             listClients.Add(clientIvan);
-
-
             //Act
             string pathToDirectory = Path.Combine("C:\\Курс\\.net-course-2022.Voloshina", "ExportData");
             string fileName = "client.csv";
             ExportService clientExporter = new ExportService(pathToDirectory, fileName);
-            clientExporter.WriteClientToCsv(listClients);
-
-            var clientsRead = clientExporter.ReadClientFromCsv();
+            await clientExporter.WriteClientToCsv(listClients);
+            var clientsRead = await clientExporter.ReadClientFromCsv();
             foreach (var client in clientsRead)
             {
-                clientService.AddClient(client);
+                await _clientService.AddClient(client);
             }
 
             //Assert
-            Assert.NotEmpty(clientsRead);
+            await Assert.NotEmpty(clientsRead);
         }
 
     }

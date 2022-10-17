@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using ModelsDb;
 using Services.Exceptions;
 using Services.Filters;
@@ -14,17 +15,17 @@ namespace Services
         {
             _dbContext = new DbBank();
         }
-        public EmployeeDb GetEmployee(Guid employeeId)
+        public async Task<EmployeeDb> GetEmployee(Guid employeeId)
         {
-            var employee = _dbContext.employees.FirstOrDefault(c => c.Id == employeeId);
+            var employee = await _dbContext.employees.FirstOrDefaultAsync(c => c.Id == employeeId);
 
             if (employee == null)
             {
                 throw new ExistsException("Этого работника не сущетсвует");
             }
-            return _dbContext.employees.FirstOrDefault(c => c.Id == employeeId); ;
+            return employee;
         }
-        public List<Employee> GetEmployees(EmployeeFilters employeeFilter)
+        public async Task<List<Employee>> GetEmployees(EmployeeFilters employeeFilter)
         {
             var selection = _dbContext.employees.Select(p => p);
 
@@ -48,17 +49,17 @@ namespace Services
                 selection = selection.
                    Where(p => p.PasportNum == employeeFilter.PasportNum);
 
-            return selection.Select(employeeDb => new Employee()
+            return await selection.Select(employeeDb => new Employee()
             {
                 Id = employeeDb.Id,
                 Name = employeeDb.Name,
                 PasportNum = employeeDb.PasportNum,
                 BirtDate = employeeDb.BirtDate
             })
-            .ToList();
+            .ToListAsync();
         }
 
-        public void AddEmployee(Employee employee)
+        public async Task AddEmployee(Employee employee)
         {
             var employeeDb = new EmployeeDb()
             {
@@ -76,13 +77,13 @@ namespace Services
             {
                 throw new Under18Exception("Работник меньше 18 лет");
             }
-            _dbContext.employees.Add(employeeDb);
-            _dbContext.SaveChanges();
+            await _dbContext.employees.AddAsync(employeeDb);
+            await _dbContext.SaveChangesAsync();
         }
         
-        public void UpdateEmployee(Employee employee)
+        public async Task UpdateEmployee(Employee employee)
         {
-            var employeeDb = _dbContext.employees.FirstOrDefault(c => c.Id == employee.Id);
+            var employeeDb = await _dbContext.employees.FirstOrDefaultAsync(c => c.Id == employee.Id);
 
             if (employeeDb == null)
             {
@@ -90,18 +91,18 @@ namespace Services
             }
 
             _dbContext.employees.Update(employeeDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteEmployee(Employee employee)
+        public async Task DeleteEmployee(Employee employee)
         {
-            var employeeDb = _dbContext.employees.FirstOrDefault(c => c.Id == employee.Id);
+            var employeeDb = await _dbContext.employees.FirstOrDefaultAsync(c => c.Id == employee.Id);
             if (employeeDb == null)
             {
                 throw new ExistsException("В базе нет такого клиента");
             }
             _dbContext.employees.Remove(employeeDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

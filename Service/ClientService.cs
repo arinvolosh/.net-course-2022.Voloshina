@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using ModelsDb;
 using Services.Exceptions;
 using Services.Filters;
@@ -16,9 +17,9 @@ namespace Services
             _dbContext = new DbBank();
         }
 
-        public ClientDb GetClient(Guid clientId)
+        public async Task<ClientDb> GetClient(Guid clientId)
         {
-            var client = _dbContext.clients.FirstOrDefault(c => c.Id == clientId);
+            var client = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == clientId);
 
             if (client == null)
             {
@@ -28,7 +29,7 @@ namespace Services
             return client;
         }
         
-        public List<Client> GetClients(ClientFilter clientFilter)
+        public async Task<List<Client>> GetClients(ClientFilter clientFilter)
         {
             var selection = _dbContext.clients.Select(p => p);
 
@@ -48,7 +49,7 @@ namespace Services
                 selection = selection.
                     Where(p => p.BirtDate == clientFilter.EndDate);
 
-            return selection.Select(clientDb => new Client()
+            return await selection.Select(clientDb => new Client()
             {
                 Id = clientDb.Id,
                 Name = clientDb.Name,
@@ -56,10 +57,10 @@ namespace Services
                 BirtDate = clientDb.BirtDate,
                 Bonus = clientDb.Bonus
             })
-            .ToList();
+            .ToListAsync();
         }
 
-        public void AddClient(Client client)
+        public async Task AddClient(Client client)
         {
             var clientDb = new ClientDb
             {
@@ -89,13 +90,13 @@ namespace Services
                 }
             };
             
-            _dbContext.clients.Add(clientDb);
-            _dbContext.accounts.Add(accountDb);
-            _dbContext.SaveChanges();
+            await _dbContext.clients.AddAsync(clientDb);
+            await _dbContext.accounts.AddAsync(accountDb);
+            await _dbContext.SaveChangesAsync();
         }
 
 
-        public void AddAccount(Client client, Account account)
+        public async Task AddAccount(Client client, Account account)
         {
             var accountDb = new AccountDb
             {
@@ -111,13 +112,13 @@ namespace Services
             {
                 throw new ExistsException("Этот аккаунт не привязан ни к одному клиенту");
             }
-            _dbContext.accounts.Add(accountDb);
-            _dbContext.SaveChanges();
+            await _dbContext.accounts.AddAsync(accountDb);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void UpdateClient(Client client)
+        public async Task UpdateClient(Client client)
         {
-            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            var clientDb = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == client.Id);
 
             if (clientDb == null)
             {
@@ -125,29 +126,29 @@ namespace Services
             }
 
             _dbContext.clients.Update(clientDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void UpdateAccount(Client client, Account account)
+        public async Task UpdateAccount(Client client, Account account)
         {
-            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            var clientDb = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == client.Id);
             if (clientDb == null)
             {
                 throw new ExistsException("В базе нет такого клиента");
             }
-            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
+            var accountDb = await _dbContext.accounts.FirstOrDefaultAsync(a => a.Currency.Name == account.Currency.Name);
 
             if (accountDb == null)
             {
                 throw new ExistsException("У клиента нет такого счета");
             }
             _dbContext.accounts.Update(accountDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteClient(Client client)
+        public async Task DeleteClient(Client client)
         {
-            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            var clientDb = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == client.Id);
 
             if (clientDb == null)
             {
@@ -155,33 +156,33 @@ namespace Services
             }
 
             _dbContext.clients.Remove(clientDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteAccount(Client client, Account account)
+        public async Task DeleteAccount(Client client, Account account)
         {
-            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == client.Id);
+            var clientDb = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == client.Id);
             if (clientDb == null)
             {
                 throw new ExistsException("В базе нет такого клиента");
             }
-            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
+            var accountDb = await _dbContext.accounts.FirstOrDefaultAsync(a => a.Currency.Name == account.Currency.Name);
 
             if (accountDb == null)
             {
                 throw new ExistsException("У клиента нет такого счета");
             }
             _dbContext.accounts.Remove(accountDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
-        public void UpdateAccount(Guid id, Account account)
+        public async Task UpdateAccount(Guid id, Account account)
         {
-            var clientDb = _dbContext.clients.FirstOrDefault(c => c.Id == id);
+            var clientDb = await _dbContext.clients.FirstOrDefaultAsync(c => c.Id == id);
             if (clientDb == null)
             {
                 throw new ExistsException("В базе нет такого клиента");
             }
-            var accountDb = _dbContext.accounts.FirstOrDefault(a => a.Currency.Name == account.Currency.Name);
+            var accountDb = await _dbContext.accounts.FirstOrDefaultAsync(a => a.Currency.Name == account.Currency.Name);
 
             if (accountDb == null)
             {
@@ -192,7 +193,7 @@ namespace Services
             accountDb.Currency.Name = account.Currency.Name;
 
             _dbContext.accounts.Update(accountDb);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
         }
     }

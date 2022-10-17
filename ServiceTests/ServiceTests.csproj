@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExportTool\ExportTool.csproj" />
     <ProjectReference Include="..\ModelsDb\ModelsDb.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\PracticeWithListAndDict\PracticeWithListAndDict.csproj" />
