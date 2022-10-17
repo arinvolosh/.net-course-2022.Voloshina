@@ -2,7 +2,6 @@ using Services;
 using Models;
 using Xunit;
 using Services.Exceptions;
-using ModelsDb;
 using Services.Filters;
 
 namespace ServiceTests
@@ -10,10 +9,10 @@ namespace ServiceTests
     public class ClientServiceTests
     {
         [Fact]
-        public void AddClientLimit18YearsExceptionTest()
+        public async Task AddClientLimit18YearsExceptionTest()
         {
+            var clientService = new ClientService();
             // Arrange
-            //var clientService = new ClientService();
             var ivan = new Client
             {
                 Name = "Ivan",
@@ -23,7 +22,7 @@ namespace ServiceTests
             // Act&Assert
             try
             {
-                //clientService.AddClient(ivan);
+                await clientService.AddClient(ivan);
             }
             catch (Under18Exception e)
             {
@@ -36,10 +35,10 @@ namespace ServiceTests
             }
         }
         [Fact]
-        public void AddClientNoPasportDataExceptionTest()
+        public async Task AddClientNoPasportDataExceptionTest()
         {
             // Arrange
-            //var clientService = new ClientService();
+            var clientService = new ClientService();
             var ivan = new Client
             {
                 Name = "Ivan",
@@ -48,7 +47,7 @@ namespace ServiceTests
             // Act&Assert
             try
             {
-                //clientService.AddClient(ivan);
+                await clientService.AddClient(ivan);
             }
             catch (NoPasportData e)
             {
@@ -61,10 +60,10 @@ namespace ServiceTests
             }
         }
         [Fact]
-        public void AddClientExistingClientTest()
+        public async Task AddClientExistingClientTest()
         {
             // Arrange
-            //var clientService = new ClientService();
+            var clientService = new ClientService();
             var testDataGenerator = new TestDataGenerator();
             var oldClient = testDataGenerator.GetFakeDataClient().Generate();
             var newClient = new Client()
@@ -76,8 +75,8 @@ namespace ServiceTests
             // Act&Assert
             try
             {
-                //clientService.AddClient(oldClient);
-                //clientService.AddClient(newClient);
+                await clientService.AddClient(oldClient);
+                await clientService.AddClient(newClient);
 
             }
             catch (ExistsException e)
@@ -91,10 +90,10 @@ namespace ServiceTests
             }
         }
         [Fact]
-        public void GetClientsFilterTest()
+        public async Task GetClientsFilterTest()
         {
             // Arrange
-            //var clientService = new ClientService();
+            var clientService = new ClientService();
             var testDataGenerator = new TestDataGenerator();
             var clientFilter = new ClientFilter();
             var client = new Client();
@@ -102,14 +101,14 @@ namespace ServiceTests
             for (int i = 0; i < 10; i++)
             {
                 client = testDataGenerator.GetFakeDataClient().Generate();
-                //clientService.AddClient(client);
+                await clientService.AddClient(client);
             };
 
             // Act&Assert
             clientFilter.Name = client.Name;
             clientFilter.PasportNum = client.PasportNum;
 
-            //Assert.NotNull(clientService.GetClients(clientFilter));
+            Assert.NotNull(clientService.GetClients(clientFilter));
 
         }
 
@@ -117,7 +116,7 @@ namespace ServiceTests
         public void DeleteClientKeyNotFoundExceptionTest()
         {
             // Arrange
-            //var clientService = new ClientService();
+            var clientService = new ClientService();
             var testDataGenerator = new TestDataGenerator();
             var existsClient = testDataGenerator.GetFakeDataClient().Generate();
             var noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
@@ -125,8 +124,23 @@ namespace ServiceTests
             // Act&Assert
             try
             {
+                var ivan = new Client
+                {
+                    Name = "Ivan",
+                    BirtDate = new DateTime(2000, 01, 01)
+                };
+                var ivanI = new Client
+                {
+                    Name = "IvanI",
+                    BirtDate = new DateTime(2000, 01, 01)
+                };
+                var newAccount = new Account
+                { 
+                    Amount = 1,
+                    Currency = new Currency { }
+                };
                 clientService.AddClient(ivan);
-                //clientService.AddAccount(ivan, newAccount);
+                clientService.AddAccount(ivan, newAccount);
 
                 //Assert.Throws<ExistsException>(() => clientService.AddAccount(ivanI, newAccount));
                 //Assert.Throws<ExistsException>(() => clientService.AddAccount(ivan, newAccount));

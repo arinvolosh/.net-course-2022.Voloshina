@@ -44,7 +44,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void WriteFromCsvAndReadToCsv()
+        public async Task WriteFromCsvAndReadToCsv()
         {
             //arrange
             var bankContext = new DbBank();
@@ -54,25 +54,22 @@ namespace ServiceTests
             string fileName = "client.csv";
             var exportService = new ExportService(pathToDirectory, fileName);
 
-            var threadWriteFromCsv = new Thread(() =>
+            var threadWriteFromCsv = new Thread(async () =>
             {
                 var listClients = new List<Client>();
-                lock (locker)
+                foreach (var client in bankContext.clients)
                 {
-                    foreach (var client in bankContext.clients)
+                    listClients.Add(new Client
                     {
-                        listClients.Add(new Client
-                        {
-                            Id = client.Id,
-                            Name = client.Name,
-                            BirtDate = client.BirtDate,
-                            PasportNum = client.PasportNum,
-                            Bonus = client.Bonus
-                        });
-                        Thread.Sleep(1000);
-                    }
-                    exportService.WriteClientToCsv(listClients);
+                        Id = client.Id,
+                        Name = client.Name,
+                        BirtDate = client.BirtDate,
+                        PasportNum = client.PasportNum,
+                        Bonus = client.Bonus
+                    });
+                    Thread.Sleep(1000);
                 }
+                await exportService.WriteClientToCsv(listClients);
                 foreach (var client in listClients)
                 {
                     _outPut.WriteLine($"Клиент: ID:{client.Id}; ФИО:{client.Name}");
@@ -82,19 +79,15 @@ namespace ServiceTests
             threadWriteFromCsv.Start();
             threadWriteFromCsv.Join();
 
-            var threadReadToCsv = new Thread(() =>
+            var threadReadToCsv = new Thread(async () =>
             {
-                lock (locker)
+                List<Client> clientsFromCsv = await exportService.ReadClientFromCsv();
+                foreach (var client in clientsFromCsv)
                 {
-                    List<Client> clientsFromCsv = exportService.ReadClientFromCsv();
-
-                    foreach (var client in clientsFromCsv)
-                    {
-                        clientService.AddClient(client);
-                        Thread.Sleep(1000);
-                    }
-                    _outPut.WriteLine($"Данные прочитанны");
+                    await clientService.AddClient(client);
+                    Thread.Sleep(1000);
                 }
+                _outPut.WriteLine($"Данные прочитанны");
             });
 
             threadReadToCsv.Start();

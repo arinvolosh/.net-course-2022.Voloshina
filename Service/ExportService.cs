@@ -26,14 +26,17 @@ namespace Services
             }
             string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
 
-            await using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
-                await using(StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
+                using(StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
                 {
-                    await using(var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
+                    using(var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
                     {
-                        writer.WriteRecords(clients);
-                        writer.Flush();
+                        await Task.Run(()=>
+                        {
+                            writer.WriteRecords(clients);
+                            writer.Flush();
+                        });
                     }
                 }
             }
@@ -43,14 +46,13 @@ namespace Services
         {
             string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
 
-            await using(FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            using(FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
-                using(StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
+                 using(var streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
                     using(var reader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
                     {
-                        var clients = reader.EnumerateRecords(new Client());
-                        return clients.ToList();
+                        return await Task.Run(()=>reader.GetRecords<Client>().ToList());
                     }
                 }
             }

@@ -19,7 +19,7 @@ namespace Services
                 if (account.Amount >= 5)
                 {
                     account.Amount -= 5;
-                    _clientService.UpdateAccount(id, account);
+                    await _clientService.UpdateAccount(id, account);
                     Task.Delay(5000).Wait();
                 }
                 else

@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using ModelsDb;
 
 namespace Services
@@ -16,7 +17,7 @@ namespace Services
 
         public async Task AccruingInterest(CancellationToken token)
         {
-            var accountsDb = dbContext.accounts.Take(10).ToList();
+            var accountsDb = await dbContext.accounts.Take(10).ToListAsync();
             
             while (!token.IsCancellationRequested)
             {
@@ -28,7 +29,7 @@ namespace Services
                         Currency = new Currency { Name = accountDb.Currency.Name }
                     };
                     updateAccount.Amount += 5;
-                    _clientService.UpdateAccount(accountDb.ClientId, updateAccount);
+                    await _clientService.UpdateAccount(accountDb.ClientId, updateAccount);
                 }
                 Task.Delay(5000).Wait();
             }
