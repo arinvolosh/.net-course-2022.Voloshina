@@ -8,12 +8,10 @@ namespace BankAPI.Controllers
     [Route("[controller]")]
     public class ClientController : ControllerBase
     {
-        private readonly ILogger<ClientController> _logger;
         ClientService _clientService;
 
-        public ClientController(ILogger<ClientController> logger)
+        public ClientController()
         {
-            _logger = logger;
             _clientService = new ClientService();
         }
 
