@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using Models;
+using Newtonsoft.Json;
 using System.Globalization;
 using System.Text;
 
@@ -41,8 +42,11 @@ namespace Services
 
         public List<Client> ReadClientFromCsv(string pathToDirectory, string fileName)
         {
-            var clientList = new List<Client>();
-
+            DirectoryInfo dirInfo = new DirectoryInfo(_pathToDirectory);
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
             string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
 
             using (var fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
@@ -56,6 +60,41 @@ namespace Services
                     }
                 }
             }
+        }
+
+        public async Task PersonSerializationWriteToFile<T>(List<T> person, string pathToDirectory, string fileName) where T : Person
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+
+            string fullPath = Path.Combine(pathToDirectory, fileName);
+            using (StreamWriter writer = new StreamWriter(fullPath))
+            {
+                string personSerialize = JsonConvert.SerializeObject(person);
+                await writer.WriteAsync(personSerialize);
+            }
+        }
+        public async Task<List<T>> PersonDeserializationReadFile<T>(string pathToDirectory, string fileName) where T : Person
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+
+            string fullPath = Path.Combine(pathToDirectory, fileName);
+            using (StreamReader reader = new StreamReader(fullPath))
+            {
+                string personSerialize = await reader.ReadToEndAsync();
+                List<T> personDeserialize = JsonConvert.DeserializeObject<List<T>>(personSerialize);
+                return personDeserialize;
+            }
+
         }
     }
 }
