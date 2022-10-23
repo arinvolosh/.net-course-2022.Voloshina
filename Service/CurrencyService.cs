@@ -8,22 +8,23 @@ namespace Services
 {
     public class CurrencyService
     {
-        public async Task<Currency> GetCurrency(string api_key, float amount, Currency fromCurrency, Currency toCurrency)
+        public async Task<Response> ConvertCurrency(CurrencyToConvert currencyToConvert)
         {
-            Currency currency;
+            Response response;
             using (var client = new HttpClient())
             {
                 HttpResponseMessage responseMessage = await
                 client.GetAsync($"https://www.amdoren.com/api/currency.php?api_key=" +
-                $"{api_key}&from={fromCurrency.Name}&to={toCurrency}amount={amount}");
+                $"{currencyToConvert.Key}&from={currencyToConvert.FromCurrency}&to={currencyToConvert.ToCurrency}" +
+                $"amount={currencyToConvert.Amount}");
 
                 responseMessage.EnsureSuccessStatusCode();
 
                 string message = await responseMessage.Content.ReadAsStringAsync();
 
-                currency = JsonConvert.DeserializeObject<Currency>(message);
+                response = JsonConvert.DeserializeObject<Response>(message);
             }
-            return currency;
+            return response;
         }
     }
 }
