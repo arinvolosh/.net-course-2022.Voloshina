@@ -8,20 +8,6 @@ namespace Services
 {
     public class CurrencyService
     {
-        //public async Task Add(Currency currency)
-        //{
-        //    string serialisedCurrency = JsonConvert.SerializeObject(currency);
-        //    var content = new StringContent(serialisedCurrency,
-        //    Encoding.UTF8, "application/json");
-        //    using (var client = new HttpClient())
-        //    {
-        //        client.DefaultRequestHeaders.Authorization =
-        //        AuthenticationHeaderValue.Parse(_token);
-        //        await
-        //        client.PostAsync("http://dev.trainee.dex-it.ru/api/Team/Add", content);
-        //    }
-        //}
-
         public async Task<Currency> GetCurrency(string api_key, float amount, Currency fromCurrency, Currency toCurrency)
         {
             Currency currency;
@@ -39,7 +25,5 @@ namespace Services
             }
             return currency;
         }
-
-
     }
 }
