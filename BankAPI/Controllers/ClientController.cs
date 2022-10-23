@@ -8,7 +8,7 @@ namespace BankAPI.Controllers
     [Route("[controller]")]
     public class ClientController : ControllerBase
     {
-        ClientService _clientService;
+        private ClientService _clientService;
 
         public ClientController()
         {
